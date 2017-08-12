@@ -1,0 +1,6 @@
+[package]
+name = "regression"
+version = "0.1.0"
+authors = ["Martin Nyaga <nyagamartin72@gmail.com>"]
+
+[dependencies]
