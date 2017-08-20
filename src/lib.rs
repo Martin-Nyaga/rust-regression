@@ -1,19 +1,18 @@
 pub struct RegressionResults {
-    gradient: f64,
-    intercept: f64
+    pub gradient: f64,
+    pub intercept: f64
 }
 
 impl RegressionResults {
-    fn print_equation(&self) {
+    pub fn print_equation(&self) {
         println!("y = {}x + {}", self.gradient, self.intercept);
     }
 }
 
  pub fn linear(x: &Vec<f64>, y: &Vec<f64>) -> RegressionResults {
-    let r = pearsons_correlation(x, y);    
-    let intercept = r * (stdev(x) / stdev(y));
-    let gradient = mean(y) - r * mean(x);
-    
+    let gradient = covariance(&x, &y) / variance_sample(&x); 
+    let intercept = mean(&y) - (gradient * mean(&x));
+
     RegressionResults {
         gradient,
         intercept,
@@ -21,11 +20,11 @@ impl RegressionResults {
  }
 
 
-fn pearsons_correlation(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
-   covariance(x, y) / (stdev(x) * stdev(y))
+pub fn pearsons_correlation(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
+   covariance(x, y) / (stdev_sample(x) * stdev_sample(y))
 }
 
-fn covariance(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
+pub fn covariance(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
     let x_mean = mean(x);
     let x_diffs: Vec<f64> = x.iter().map(|x1| x1 - x_mean).collect();
 
@@ -38,18 +37,29 @@ fn covariance(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
     sum / (x.len() as f64 - 1.0)
 }
 
-fn stdev(arr: &Vec<f64>) -> f64 {
-    let mean = mean(arr);
-    let diffs = arr.iter().fold(0.0, |sum, x| sum + (x - mean).powi(2)) as f64;
-    let variance = match arr.len() {
-        len => diffs / (arr.len() as f64),
-        len if len <= 30 => diffs / (arr.len() as f64 - 1.0),
-        _ => 0.0 
-    };
-    variance.sqrt()
+pub fn stdev(arr: &Vec<f64>) -> f64 {
+    let var = variance(arr);
+    var.sqrt()
 }
 
-fn mean(arr: &Vec<f64>) -> f64 {
+pub fn stdev_sample(arr: &Vec<f64>) -> f64 {
+    let var = variance_sample(arr);
+    var.sqrt()
+}
+
+pub fn variance(arr: &Vec<f64>) -> f64 {
+    let mean = mean(arr);
+    let diffs = arr.iter().fold(0.0, |sum, x| sum + (x - mean).powi(2)) as f64;
+    diffs / (arr.len() as f64)
+}
+
+pub fn variance_sample(arr: &Vec<f64>) -> f64 {
+    let mean = mean(arr);
+    let diffs = arr.iter().fold(0.0, |sum, x| sum + (x - mean).powi(2)) as f64;
+    diffs / (arr.len() as f64 - 1.0)
+}
+
+pub fn mean(arr: &Vec<f64>) -> f64 {
     let sum = arr.iter().fold(0_f64, |sum, i| sum + i);
     sum / arr.len() as f64
 }
@@ -62,13 +72,22 @@ mod tests {
         let x: Vec<f64> = (1..11).map(|x| x as f64).collect();
         assert_eq!(5.5, super::mean(&x));
     }
+    
+    #[test]
+    fn it_calculates_standard_deviation() {
+        let x: Vec<f64> = (1u32..11u32).map(|x| x as f64).collect();
+        let deviation = super::stdev_sample(&x);
+        let dps = (10f64).powi(5);
+        println!("{}", deviation);
+        assert_eq!(3.02765, (deviation * dps).round() / dps);
+    }
+
     #[test]
     fn it_generates_a_correct_linear_regression_for_simple_data() {
-        let x: Vec<f64> = (1..7).map(|x| x as f64).collect();
+        let x: Vec<f64> = (1u32..7u32).map(|x| x as f64).collect();
         // y = 3x + 4
         let y: Vec<f64> = x.iter().map(|x| 3.0*x + 4.0).collect(); 
         let results = super::linear(&x, &y);
-        results.print_equation();
 
         assert_eq!(3.0, results.gradient);
         assert_eq!(4.0, results.intercept);
