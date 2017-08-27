@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["Martin Nyaga <nyagamartin72@gmail.com>"]
 
 [dependencies]
+csv = "1.0.0-beta.4"
+gnuplot = "0.0.22"
