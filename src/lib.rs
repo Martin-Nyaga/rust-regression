@@ -1,14 +1,14 @@
 #[derive(Debug)]
-pub struct Dataset {
-    pub data: Vec<f64>,
+pub struct Dataset<'a> {
+    data: &'a Vec<f64>,
     mean: Option<f64>,
     diffs: Option<Vec<f64>>,
     variance: Option<f64>,
     stdev: Option<f64>
 }
 
-impl Dataset {
-    fn new(data: Vec<f64>) -> Dataset {
+impl<'a> Dataset<'a> {
+    fn new(data: &'a Vec<f64>) -> Dataset<'a> {
         Dataset {
             data,
             mean: None, 
@@ -74,16 +74,16 @@ impl Dataset {
 }
 
 #[derive(Debug)]
-pub struct Linear {
-    pub x: Dataset,
-    pub y: Dataset,
+pub struct Linear<'a> {
+    pub x: Dataset<'a>,
+    pub y: Dataset<'a>,
     pub gradient: f64,
     pub intercept: f64,
     pub covariance: f64
 }
 
-impl Linear {
-    pub fn new(x: Vec<f64>, y: Vec<f64>) -> Linear {
+impl<'a> Linear<'a> {
+    pub fn new(x: &'a Vec<f64>, y: &'a Vec<f64>) -> Linear<'a> {
         let mut x = Dataset::new(x);
         let mut y = Dataset::new(y);
         
@@ -130,14 +130,14 @@ mod tests {
     #[test]
     fn it_calculates_mean() {
         let x: Vec<f64> = (1..11).map(|x| x as f64).collect();
-        let mut dataset = Dataset::new(x);
+        let mut dataset = Dataset::new(&x);
         assert_eq!(5.5, dataset.mean());
     }
     
     #[test]
     fn it_calculates_standard_deviation() {
         let x: Vec<f64> = (1u32..11u32).map(|x| x as f64).collect();
-        let mut dataset = Dataset::new(x);
+        let mut dataset = Dataset::new(&x);
         let dps = 100000.0;
         assert_eq!(3.02765, (dataset.stdev() * dps).round() / dps);
     }
@@ -147,7 +147,7 @@ mod tests {
         let x: Vec<f64> = (1u32..7u32).map(|x| x as f64).collect();
         // y = 3x + 4
         let y: Vec<f64> = x.iter().map(|x| 3.0*x + 4.0).collect(); 
-        let results = Linear::new(x, y);
+        let results = Linear::new(&x, &y);
 
         assert_eq!(3.0, results.gradient);
         assert_eq!(4.0, results.intercept);

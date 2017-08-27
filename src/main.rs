@@ -17,19 +17,19 @@ type Record = HashMap<String, String>;
 
 fn run() -> Result<(), Box<Error>> {
     let (xs, ys) = parse_csv("./sample_datasets/countries.csv"); 
-    let reg = Linear::new(xs, ys);
+    let reg = Linear::new(&xs, &ys);
 
     let mut fg = Figure::new();
     fg.axes2d()
         .points(
-            &reg.x.data,
-            &reg.y.data,
+            &xs,
+            &ys,
             &[
                 Caption("Life Expectancy vs Infant Mortality"),
                 PointSymbol('x'),
             ])
         .lines(
-            &reg.x.data,
+            &xs,
             &reg.predictions(),
             &[
                 Caption("Trend"),
