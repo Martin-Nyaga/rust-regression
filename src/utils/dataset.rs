@@ -71,6 +71,13 @@ impl<'a> Dataset<'a> {
             }
         }
     }
+
+    pub fn residuals(&self, predictions: Vec<f64>) -> Vec<f64> {
+        self.data.iter()
+            .zip(predictions)
+            .map(|(a,b)| a - b)
+            .collect()
+    }
 }
 
 #[cfg(test)]

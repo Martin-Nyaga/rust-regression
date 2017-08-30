@@ -18,7 +18,7 @@ impl<'a> Power<'a> {
     // Convert to the log form ln(y) = b.ln(x) + ln(a) then
     // perform a standard linear regression on that new equation
     // and solve for b & a
-    pub fn new(x: &'a Vec<f64>, y: &'a Vec<f64>) -> Power<'a> {
+    pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Power<'a> {
         let x_lns = x.iter()
             .map(|x1| x1.ln())
             .collect();
@@ -27,7 +27,7 @@ impl<'a> Power<'a> {
             .map(|y1| y1.ln())
             .collect();
 
-        let reg = Linear::new(&x_lns, &y_lns); 
+        let reg = Linear::new(&y_lns, &x_lns); 
         let exponent = reg.gradient;
         let coefficient = reg.intercept.exp();
 
@@ -67,7 +67,7 @@ mod power_tests {
         let x: Vec<f64> = (1u32..7u32).map(|x| x as f64).collect();
         // y = 2x^3
         let y: Vec<f64> = x.iter().map(|x| 2.0 * x.powf(3.0)).collect(); 
-        let results = Power::new(&x, &y);
+        let results = Power::new(&y, &x);
 
         assert_eq!(2.0, results.coefficient.round());
         assert_eq!(3.0, results.exponent.round());

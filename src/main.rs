@@ -16,8 +16,17 @@ fn main() {
 type Record = HashMap<String, String>;
 
 fn run() -> Result<(), Box<Error>> {
-    let (xs, ys) = parse_csv("./sample_datasets/countries.csv"); 
-    let reg = regression::Linear::new(&xs, &ys);
+    // let (xs, ys) = parse_csv("./sample_datasets/countries.csv"); 
+    
+    let xs: Vec<f64> = (1u32..30u32).map(|x| x as f64).collect();
+    let x2s: Vec<f64> = xs.iter().map(|x| x*x).collect();
+    let ys: Vec<f64> = xs.iter()
+        .map(|x| 5.0*x - 2.0*x.powi(2) + 3.0)
+        .collect(); 
+
+    let x_arr = vec![&x2s, &xs];
+    let reg = regression::MultipleLinear::new(&ys, &x_arr);
+    println!("{:?}", reg);
 
     let mut fg = Figure::new();
     fg.axes2d()
@@ -32,7 +41,7 @@ fn run() -> Result<(), Box<Error>> {
             &xs,
             &reg.predictions(),
             &[
-                Caption(&gnuplot_format_string(reg.equation())),
+                // Caption(&gnuplot_format_string(reg.equation())),
                 Color("green"),
                 PointSymbol('*')
             ]);

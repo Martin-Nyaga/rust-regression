@@ -18,12 +18,12 @@ impl<'a> Exponential<'a> {
     // Convert to the log form ln(y) = bx + lnA then
     // perform a standard linear regression on that new equation
     // and solve for b & A
-    pub fn new(x: &'a Vec<f64>, y: &'a Vec<f64>) -> Exponential<'a> {
+    pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Exponential<'a> {
         let y_lns = y.iter()
             .map(|y1| y1.ln())
             .collect();
 
-        let reg = Linear::new(x, &y_lns); 
+        let reg = Linear::new(&y_lns, x); 
         let exponent = reg.gradient;
         let coefficient = reg.intercept.exp();
 
@@ -63,7 +63,7 @@ mod exponential_tests {
         let x: Vec<f64> = (1u32..7u32).map(|x| x as f64).collect();
         // y = 2e^(3x)
         let y: Vec<f64> = x.iter().map(|x| 2.0 * (3.0*x).exp()).collect(); 
-        let results = Exponential::new(&x, &y);
+        let results = Exponential::new(&y, &x);
 
         assert_eq!(2.0, results.coefficient);
         assert_eq!(3.0, results.exponent);

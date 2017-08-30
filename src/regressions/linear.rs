@@ -12,7 +12,7 @@ pub struct Linear<'a> {
 
 // Custom methods for this kind of regression
 impl<'a> Linear<'a> {
-    pub fn new(x: &'a Vec<f64>, y: &'a Vec<f64>) -> Linear<'a> {
+    pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Linear<'a> {
         let mut x = Dataset::new(x);
         let mut y = Dataset::new(y);
         
@@ -71,7 +71,7 @@ mod linear_tests {
         let x: Vec<f64> = (1u32..7u32).map(|x| x as f64).collect();
         // y = 3x + 4
         let y: Vec<f64> = x.iter().map(|x| 3.0*x + 4.0).collect(); 
-        let results = Linear::new(&x, &y);
+        let results = Linear::new(&y, &x);
 
         assert_eq!(3.0, results.gradient);
         assert_eq!(4.0, results.intercept);
