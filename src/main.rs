@@ -3,7 +3,7 @@ extern crate csv;
 extern crate gnuplot;
 
 use gnuplot::*;
-use regression::Linear;
+use regression::{Linear, Exponential};
 use std::error::Error;
 use std::collections::HashMap;
 
@@ -17,7 +17,7 @@ type Record = HashMap<String, String>;
 
 fn run() -> Result<(), Box<Error>> {
     let (xs, ys) = parse_csv("./sample_datasets/countries.csv"); 
-    let reg = Linear::new(&xs, &ys);
+    let reg = Exponential::new(&xs, &ys);
 
     let mut fg = Figure::new();
     fg.axes2d()
@@ -28,12 +28,13 @@ fn run() -> Result<(), Box<Error>> {
                 Caption("Life Expectancy vs Infant Mortality"),
                 PointSymbol('x'),
             ])
-        .lines(
+        .points(
             &xs,
             &reg.predictions(),
             &[
                 Caption("Trend"),
-                Color("green")
+                Color("green"),
+                PointSymbol('*')
             ]);
     fg.show();
 
