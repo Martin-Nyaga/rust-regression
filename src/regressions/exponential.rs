@@ -12,16 +12,16 @@ pub struct Exponential<'a> {
 }
 
 impl<'a> Exponential<'a> {
+    // Exponential regression is of the form y = Ae^(bx)
+    // Convert to the log form ln(y) = bx + lnA then
+    // perform a standard linear regression on that new equation
+    // and solve for b & A
     pub fn new(x: &'a Vec<f64>, y: &'a Vec<f64>) -> Exponential<'a> {
-        let x_lns = x.iter()
-            .map(|x| x.ln())
-            .collect();
-    
         let y_lns = y.iter()
             .map(|y| y.ln())
             .collect();
 
-        let reg = Linear::new(&x_lns, &y_lns); 
+        let reg = Linear::new(x, &y_lns); 
         let exponent = reg.gradient;
         let coefficient = reg.intercept.exp();
 
