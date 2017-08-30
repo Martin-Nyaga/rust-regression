@@ -1,4 +1,5 @@
 use utils::Dataset;
+use regressions::Regression;
 
 #[derive(Debug)]
 pub struct Linear<'a> {
@@ -9,6 +10,7 @@ pub struct Linear<'a> {
     pub covariance: f64
 }
 
+// Custom methods for this kind of regression
 impl<'a> Linear<'a> {
     pub fn new(x: &'a Vec<f64>, y: &'a Vec<f64>) -> Linear<'a> {
         let mut x = Dataset::new(x);
@@ -40,22 +42,18 @@ impl<'a> Linear<'a> {
     pub fn pearsons_correlation(&mut self) -> f64 {
         self.covariance / (self.x.stdev() * self.y.stdev())
     }
+}
 
-    pub fn predictions(&self) -> Vec<f64> {
+// Methods necessary to fulfil generic Regression trait
+impl<'a> Regression for Linear<'a> {
+    // Getter for x data for prediction purposes
+    fn x_data(&self) -> &Vec<f64> {
         self.x.data
-            .iter()
-            .map(|x| (self.gradient * x) + self.intercept)
-            .collect()
     }
-
-    pub fn predict_single(&self, x: f64) -> f64 {
+    
+    // Predict a y value from a single x value
+    fn predict_single(&self, x: f64) -> f64 {
         (self.gradient * x) + self.intercept
-    }
-
-    pub fn predict_multi(&self, x: &Vec<f64>) -> Vec<f64> {
-        x.iter()
-            .map(|x| (self.gradient * x) + self.intercept)
-            .collect()
     }
 }
 

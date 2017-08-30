@@ -3,9 +3,9 @@ extern crate csv;
 extern crate gnuplot;
 
 use gnuplot::*;
-use regression::{Linear, Exponential};
 use std::error::Error;
 use std::collections::HashMap;
+use regression::*;
 
 fn main() {
     if let Err(e) = run() {
@@ -32,7 +32,7 @@ fn run() -> Result<(), Box<Error>> {
             &xs,
             &reg.predictions(),
             &[
-                Caption("Trend"),
+                Caption("Regression"),
                 Color("green"),
                 PointSymbol('*')
             ]);

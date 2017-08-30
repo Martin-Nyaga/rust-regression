@@ -1,9 +1,10 @@
 use utils::Dataset;
-use regressions::Linear;
+use regressions::{Regression, Linear};
 
 // Form y = Ae^(bx)
 // A := Coefficient
 // b := Exponent
+#[allow(dead_code)]
 pub struct Exponential<'a> {
     x: Dataset<'a>,
     y: Dataset<'a>,
@@ -11,6 +12,7 @@ pub struct Exponential<'a> {
     pub exponent: f64
 }
 
+// Custom methods for this regression
 impl<'a> Exponential<'a> {
     // Exponential regression is of the form y = Ae^(bx)
     // Convert to the log form ln(y) = bx + lnA then
@@ -32,15 +34,20 @@ impl<'a> Exponential<'a> {
             exponent
         }
     }
-
-    pub fn predictions(&self) -> Vec<f64> {
-        self.x.data
-            .iter()
-            .map(|x| self.coefficient * (self.exponent * x).exp())
-            .collect()
-    }
 }
 
+// Methods necessary to fulfil Regression trait 
+impl<'a> Regression for Exponential<'a> {
+    // Getter for x data for prediction purposes
+    fn x_data(&self) -> &Vec<f64> {
+        self.x.data
+    }
+
+    // Predict a y value from a single x value
+    fn predict_single(&self, x: f64) -> f64 {
+        self.coefficient * (self.exponent * x).exp()
+    }
+}
 
 #[cfg(test)]
 mod exponential {
