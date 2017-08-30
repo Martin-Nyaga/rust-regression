@@ -4,8 +4,13 @@ pub use self::linear::*;
 pub mod exponential;
 pub use self::exponential::*;
 
+pub mod power;
+pub use self::power::*;
+
 // Methods available on all predictions
 pub trait Regression {
+    fn equation(&self) -> String;
+
     fn x_data(&self) -> &Vec<f64>;
     fn predict_single(&self, x: f64) -> f64;
 

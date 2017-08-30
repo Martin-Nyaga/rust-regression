@@ -55,10 +55,15 @@ impl<'a> Regression for Linear<'a> {
     fn predict_single(&self, x: f64) -> f64 {
         (self.gradient * x) + self.intercept
     }
+
+    // Get equation string
+    fn equation(&self) -> String {
+        format!("y = {:.5}x + {:.5}", self.gradient, self.intercept)
+    }
 }
 
 #[cfg(test)]
-mod linear {
+mod linear_tests {
     use super::*;
 
     #[test]

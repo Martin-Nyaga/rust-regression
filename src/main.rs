@@ -17,7 +17,7 @@ type Record = HashMap<String, String>;
 
 fn run() -> Result<(), Box<Error>> {
     let (xs, ys) = parse_csv("./sample_datasets/countries.csv"); 
-    let reg = Exponential::new(&xs, &ys);
+    let reg = regression::Linear::new(&xs, &ys);
 
     let mut fg = Figure::new();
     fg.axes2d()
@@ -32,7 +32,7 @@ fn run() -> Result<(), Box<Error>> {
             &xs,
             &reg.predictions(),
             &[
-                Caption("Regression"),
+                Caption(&gnuplot_format_string(reg.equation())),
                 Color("green"),
                 PointSymbol('*')
             ]);
@@ -64,4 +64,8 @@ fn parse_csv(filepath: &str) -> (Vec<f64>, Vec<f64>) {
     }
 
     (xs, ys)
+}
+
+fn gnuplot_format_string(s: String) -> String {
+    s.replace("(", "{").replace(")","}") 
 }
