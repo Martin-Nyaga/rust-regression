@@ -21,7 +21,7 @@ fn run() -> Result<(), Box<Error>> {
     let xs: Vec<f64> = (1u32..30u32).map(|x| x as f64).collect();
     let x2s: Vec<f64> = xs.iter().map(|x| x*x).collect();
     let ys: Vec<f64> = xs.iter()
-        .map(|x| 5.0*x - 2.0*x.powi(2) + 3.0)
+        .map(|x| x.powi(2) + x)
         .collect(); 
 
     let x_arr = vec![&x2s, &xs];
@@ -34,14 +34,14 @@ fn run() -> Result<(), Box<Error>> {
             &xs,
             &ys,
             &[
-                Caption("Life Expectancy vs Infant Mortality"),
+                Caption("x^2 + x"),
                 PointSymbol('x'),
             ])
         .points(
             &xs,
             &reg.predictions(),
             &[
-                // Caption(&gnuplot_format_string(reg.equation())),
+                Caption(&gnuplot_format_string(reg.equation_string())),
                 Color("green"),
                 PointSymbol('*')
             ]);

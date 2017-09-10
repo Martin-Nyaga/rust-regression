@@ -1,9 +1,9 @@
 use utils::Dataset;
 use regressions::{Regression, Linear};
 
-// Form y = ax^b
-// a := Coefficient
-// b := Exponent
+// y = ax^b
+// a = Coefficient
+// b = Exponent
 #[allow(dead_code)]
 pub struct Power<'a> {
     x: Dataset<'a>,
@@ -12,12 +12,10 @@ pub struct Power<'a> {
     pub exponent: f64
 }
 
-// Custom methods for this regression
 impl<'a> Power<'a> {
     // Power regression is of the form y = ax^b
-    // Convert to the log form ln(y) = b.ln(x) + ln(a) then
-    // perform a standard linear regression on that new equation
-    // and solve for b & a
+    // solved by converting to the log form ln(y) = b.ln(x) + ln(a)
+    // performing a simple linear regression to solve for b & a
     pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Power<'a> {
         let x_lns = x.iter()
             .map(|x1| x1.ln())
@@ -40,20 +38,20 @@ impl<'a> Power<'a> {
     }
 }
 
-// Methods necessary to fulfil Regression trait 
 impl<'a> Regression for Power<'a> {
-    // Getter for x data for prediction purposes
-    fn x_data(&self) -> &Vec<f64> {
-        self.x.data
+    fn x_data(&self) -> &Dataset {
+        &self.x
     }
 
-    // Predict a y value from a single x value
+    fn y_data(&self) -> &Dataset {
+        &self.y
+    }
+
     fn predict_single(&self, x: f64) -> f64 {
         self.coefficient * x.powf(self.exponent)
     }
 
-    // Get equation string
-    fn equation(&self) -> String {
+    fn equation_string(&self) -> String {
         format!("y = {:.5}x^({:.5})", self.coefficient, self.exponent)
     }
 }

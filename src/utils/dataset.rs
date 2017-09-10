@@ -4,7 +4,7 @@ pub struct Dataset<'a> {
     mean: Option<f64>,
     diffs: Option<Vec<f64>>,
     variance: Option<f64>,
-    stdev: Option<f64>
+    stdev: Option<f64>,
 }
 
 impl<'a> Dataset<'a> {
@@ -72,11 +72,24 @@ impl<'a> Dataset<'a> {
         }
     }
 
-    pub fn residuals(&self, predictions: Vec<f64>) -> Vec<f64> {
+    pub fn differences(&self, other: &Dataset) -> Vec<f64> {
         self.data.iter()
-            .zip(predictions)
+            .zip(other.data)
             .map(|(a,b)| a - b)
             .collect()
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+}
+
+impl<'a> IntoIterator for Dataset<'a> {
+    type Item = f64; 
+    type IntoIter = ::std::vec::IntoIter<f64>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.clone().into_iter()
     }
 }
 

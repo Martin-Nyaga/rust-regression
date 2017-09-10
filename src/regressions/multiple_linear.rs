@@ -1,5 +1,5 @@
 use utils::Dataset;
-use regressions::{Regression, MultipleRegression, Linear};
+use regressions::{Regression, Linear};
 
 #[derive(Debug)]
 pub struct MultipleLinear<'a> {
@@ -10,29 +10,41 @@ pub struct MultipleLinear<'a> {
     pub intercept: f64
 }
 
-// Custom methods for this regression
+struct RankInfo<'a> {
+    index: usize,
+    used: bool,
+    regression: Linear<'a>
+}
+
 impl<'a> MultipleLinear<'a> {
     pub fn new(y: &'a Vec<f64>, xs: &'a Vec<&'a Vec<f64>>) -> MultipleLinear<'a> {
-        let reg = Linear::new(y, &xs[0]);
-        
-        // set intercept
-        let mut intercept = reg.intercept;
-       
-        // init coefficient and add coefficient for first x
-        let mut coefficients = Vec::new();
-        coefficients.push(reg.gradient);
+        let mut variables: Vec<RankInfo> = (0..xs.len())
+            .map(|i| {
+                RankInfo {
+                    index: i,
+                    used: false,
+                    regression: Linear::new(y, &xs[i])
+                }
+            })
+            .collect();
+        let mut intercept = 0.0;
+        let mut coefficients: Vec<f64> = vec![0.0; xs.len()];
 
-        let mut predictions = reg.predictions();
-        let mut residuals: Vec<f64> = Dataset::new(y).residuals(predictions);
-
-        for x in xs.iter().skip(1) {
-            let res = residuals.clone();
-            let reg = Linear::new(&res, x);
-            intercept = intercept + reg.intercept;
-            coefficients.push(reg.gradient);
-
-            predictions = reg.predictions();
-            residuals = Dataset::new(&residuals).residuals(predictions);
+        while variables.iter().filter(|x| !x.used).collect::<Vec<&RankInfo>>().len() > 0 {
+            let minimising_variable_index = {
+                let mut unused_variables: Vec<&RankInfo> = variables.iter()
+                    .filter(|x| !x.used)
+                    .collect();
+                unused_variables.sort_by(|var1, var2| {
+                    var2.regression.mean_square_error().partial_cmp(&var1.regression.mean_square_error()).unwrap()
+                });
+                let mut minimising_variable = unused_variables[0];
+                intercept = intercept + minimising_variable.regression.intercept;
+                coefficients[minimising_variable.index] = minimising_variable.regression.gradient;
+                coefficients[minimising_variable.index] = minimising_variable.regression.gradient;
+                minimising_variable.index
+            };
+            variables[minimising_variable_index].used = true;
         }
 
         MultipleLinear {
@@ -43,22 +55,30 @@ impl<'a> MultipleLinear<'a> {
             intercept
         }
     }
-}
 
-// Methods necessary to fulfil generic Regression trait
-impl<'a> MultipleRegression for MultipleLinear<'a> {
-    // Getter for x data for prediction purposes
-    fn x_data(&self) -> Vec<&Vec<f64>> {
-       self.xs
-            .iter()
-            .map(|x: &Dataset<'a>| x.data)
-            .collect()
+    fn x_data(&self) -> &Vec<Dataset> {
+        &self.xs
     }
-    
-    // Predict a y value from a single x value
+
     fn predict_single(&self, xs: &Vec<f64>) -> f64 {
         let sum: f64 = xs.iter().zip(&self.coefficients).map(|(a,b)| a * b).sum();
         self.intercept + sum 
+    }
+    
+    pub fn predictions(&self) -> Vec<f64> {
+        let mut predictions = Vec::new();
+        for i in 0..self.x_data()[0].len() - 1 {
+            let arr: Vec<f64> = self.x_data()
+                .iter()
+                .map(|x_dataset| x_dataset.data[i])
+                .collect(); 
+            predictions.push(self.predict_single(&arr));
+        }
+        predictions
+    }
+
+    pub fn equation_string(&self) -> String {
+        format!("{:?}", self.coefficients)
     }
 }
 
@@ -68,20 +88,6 @@ mod multiple_linear_test {
 
     #[test]
     fn it_generates_a_correct_exponential_regression_for_simple_data() {
-        let x: Vec<f64> = (1u32..7u32).map(|x| x as f64).collect();
-        let x2: Vec<f64> = x.iter().map(|x| x*x).collect();
-
-        // y = 5x + 2x^2 + 3
-        let y: Vec<f64> = x.iter()
-            .map(|x| 5.0*x + 2.0*x.powi(2) + 3.0)
-            .collect(); 
-        let xs = vec![&x, &x2];
-
-        let results = MultipleLinear::new(&y, &xs);
-
-        // assert_eq!(3.0, results.intercept);
-        // assert_eq!(5.0, results.coefficients[0]);
-        // assert_eq!(2.0, results.coefficients[1]);
+        // TODO: Test multiple linear regression
     }
 }
-

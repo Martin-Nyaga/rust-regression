@@ -10,7 +10,6 @@ pub struct Linear<'a> {
     pub covariance: f64
 }
 
-// Custom methods for this kind of regression
 impl<'a> Linear<'a> {
     pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Linear<'a> {
         let mut x = Dataset::new(x);
@@ -44,20 +43,20 @@ impl<'a> Linear<'a> {
     }
 }
 
-// Methods necessary to fulfil generic Regression trait
 impl<'a> Regression for Linear<'a> {
-    // Getter for x data for prediction purposes
-    fn x_data(&self) -> &Vec<f64> {
-        self.x.data
+    fn x_data(&self) -> &Dataset {
+        &self.x
+    }
+
+    fn y_data(&self) -> &Dataset {
+        &self.y
     }
     
-    // Predict a y value from a single x value
     fn predict_single(&self, x: f64) -> f64 {
         (self.gradient * x) + self.intercept
     }
 
-    // Get equation string
-    fn equation(&self) -> String {
+    fn equation_string(&self) -> String {
         format!("y = {:.5}x + {:.5}", self.gradient, self.intercept)
     }
 }
