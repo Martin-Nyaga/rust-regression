@@ -10,6 +10,7 @@ pub struct MultipleLinear<'a> {
     pub intercept: f64
 }
 
+#[derive(Debug)]
 struct RankInfo<'a> {
     index: usize,
     used: bool,
@@ -18,6 +19,7 @@ struct RankInfo<'a> {
 
 impl<'a> MultipleLinear<'a> {
     pub fn new(y: &'a Vec<f64>, xs: &'a Vec<&'a Vec<f64>>) -> MultipleLinear<'a> {
+        let residuals: Vec<f64> = Vec::new();
         let mut variables: Vec<RankInfo> = (0..xs.len())
             .map(|i| {
                 RankInfo {
@@ -36,8 +38,9 @@ impl<'a> MultipleLinear<'a> {
                     .filter(|x| !x.used)
                     .collect();
                 unused_variables.sort_by(|var1, var2| {
-                    var2.regression.mean_square_error().partial_cmp(&var1.regression.mean_square_error()).unwrap()
+                    var1.regression.mean_square_error().partial_cmp(&var2.regression.mean_square_error()).unwrap()
                 });
+                println!("{:?}", unused_variables.iter().map(|x| x.regression.mean_square_error()).collect::<Vec<f64>>());
                 let mut minimising_variable = unused_variables[0];
                 intercept = intercept + minimising_variable.regression.intercept;
                 coefficients[minimising_variable.index] = minimising_variable.regression.gradient;
@@ -45,6 +48,10 @@ impl<'a> MultipleLinear<'a> {
                 minimising_variable.index
             };
             variables[minimising_variable_index].used = true;
+            let residuals = variables[minimising_variable_index].regression.residuals();
+            for i in 0..variables.len() - 1 {
+                variables[i].regression = Linear::new(&residuals, &xs[i])
+            }
         }
 
         MultipleLinear {
@@ -78,7 +85,7 @@ impl<'a> MultipleLinear<'a> {
     }
 
     pub fn equation_string(&self) -> String {
-        format!("{:?}", self.coefficients)
+        format!("{} {:?}",self.intercept, self.coefficients)
     }
 }
 
