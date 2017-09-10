@@ -20,11 +20,12 @@ fn run() -> Result<(), Box<Error>> {
     
     let xs: Vec<f64> = (1u32..30u32).map(|x| x as f64).collect();
     let x2s: Vec<f64> = xs.iter().map(|x| x*x).collect();
+    let x3s: Vec<f64> = xs.iter().map(|x| x*x*x).collect();
     let ys: Vec<f64> = xs.iter()
-        .map(|x| x.powi(2) + x)
+        .map(|x| 3.0 * x.powi(2) + 5.0 * x.powi(3) - 5.0 * x)
         .collect(); 
 
-    let x_arr = vec![x2s.clone(), xs.clone()];
+    let x_arr = vec![x3s.clone(), x2s.clone(), xs.clone()];
     let reg = regression::MultipleLinear::new(ys.clone(), x_arr);
     println!("{:?}", reg);
 
@@ -34,14 +35,14 @@ fn run() -> Result<(), Box<Error>> {
             &xs,
             &ys,
             &[
-                Caption("x^2 + x"),
+                Caption("Unknown Cubic Expression"),
                 PointSymbol('x'),
             ])
-        .points(
+        .lines(
             &xs,
             &reg.predictions(),
             &[
-                Caption(&gnuplot_format_string(reg.equation_string())),
+                Caption("Least squares estimate"),
                 Color("green"),
                 PointSymbol('*')
             ]);
