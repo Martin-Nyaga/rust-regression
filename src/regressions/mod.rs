@@ -27,13 +27,13 @@ pub trait Regression {
 
     fn residuals(&self) -> Vec<f64> {
         self.y_data()
-            .differences(self.x_data())
+            .differences(&self.predictions())
     }
 
     fn mean_square_error(&self) -> f64 {
         self.residuals()
             .iter()
-            .map(|x| x*x)
+            .map(|x| x * x)
             .sum()
     }
 

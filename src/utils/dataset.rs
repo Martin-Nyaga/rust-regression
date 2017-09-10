@@ -1,14 +1,14 @@
 #[derive(Debug)]
-pub struct Dataset<'a> {
-    pub data: &'a Vec<f64>,
+pub struct Dataset {
+    pub data: Vec<f64>,
     mean: Option<f64>,
     diffs: Option<Vec<f64>>,
     variance: Option<f64>,
     stdev: Option<f64>,
 }
 
-impl<'a> Dataset<'a> {
-    pub fn new(data: &'a Vec<f64>) -> Dataset<'a> {
+impl Dataset {
+    pub fn new(data: Vec<f64>) -> Dataset {
         Dataset {
             data,
             mean: None, 
@@ -72,24 +72,15 @@ impl<'a> Dataset<'a> {
         }
     }
 
-    pub fn differences(&self, other: &Dataset) -> Vec<f64> {
+    pub fn differences(&self, other: &Vec<f64>) -> Vec<f64> {
         self.data.iter()
-            .zip(other.data)
+            .zip(other.clone())
             .map(|(a,b)| a - b)
             .collect()
     }
 
     pub fn len(&self) -> usize {
         self.data.len()
-    }
-}
-
-impl<'a> IntoIterator for Dataset<'a> {
-    type Item = f64; 
-    type IntoIter = ::std::vec::IntoIter<f64>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.data.clone().into_iter()
     }
 }
 

@@ -24,8 +24,8 @@ fn run() -> Result<(), Box<Error>> {
         .map(|x| x.powi(2) + x)
         .collect(); 
 
-    let x_arr = vec![&x2s, &xs];
-    let reg = regression::MultipleLinear::new(&ys, &x_arr);
+    let x_arr = vec![x2s.clone(), xs.clone()];
+    let reg = regression::MultipleLinear::new(ys.clone(), x_arr);
     println!("{:?}", reg);
 
     let mut fg = Figure::new();

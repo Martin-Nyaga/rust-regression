@@ -2,16 +2,16 @@ use utils::Dataset;
 use regressions::Regression;
 
 #[derive(Debug)]
-pub struct Linear<'a> {
-    x: Dataset<'a>,
-    y: Dataset<'a>,
+pub struct Linear {
+    x: Dataset,
+    y: Dataset,
     pub gradient: f64,
     pub intercept: f64,
     pub covariance: f64
 }
 
-impl<'a> Linear<'a> {
-    pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Linear<'a> {
+impl Linear {
+    pub fn new(y: Vec<f64>, x: Vec<f64>) -> Linear {
         let mut x = Dataset::new(x);
         let mut y = Dataset::new(y);
         
@@ -43,7 +43,7 @@ impl<'a> Linear<'a> {
     }
 }
 
-impl<'a> Regression for Linear<'a> {
+impl Regression for Linear {
     fn x_data(&self) -> &Dataset {
         &self.x
     }

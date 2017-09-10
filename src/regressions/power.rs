@@ -5,18 +5,18 @@ use regressions::{Regression, Linear};
 // a = Coefficient
 // b = Exponent
 #[allow(dead_code)]
-pub struct Power<'a> {
-    x: Dataset<'a>,
-    y: Dataset<'a>,
+pub struct Power {
+    x: Dataset,
+    y: Dataset,
     pub coefficient: f64,
     pub exponent: f64
 }
 
-impl<'a> Power<'a> {
+impl Power {
     // Power regression is of the form y = ax^b
     // solved by converting to the log form ln(y) = b.ln(x) + ln(a)
     // performing a simple linear regression to solve for b & a
-    pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Power<'a> {
+    pub fn new(y: Vec<f64>, x: Vec<f64>) -> Power {
         let x_lns = x.iter()
             .map(|x1| x1.ln())
             .collect();
@@ -25,7 +25,7 @@ impl<'a> Power<'a> {
             .map(|y1| y1.ln())
             .collect();
 
-        let reg = Linear::new(&y_lns, &x_lns); 
+        let reg = Linear::new(y_lns, x_lns); 
         let exponent = reg.gradient;
         let coefficient = reg.intercept.exp();
 
@@ -38,7 +38,7 @@ impl<'a> Power<'a> {
     }
 }
 
-impl<'a> Regression for Power<'a> {
+impl Regression for Power {
     fn x_data(&self) -> &Dataset {
         &self.x
     }

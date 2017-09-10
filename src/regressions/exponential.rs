@@ -4,24 +4,23 @@ use regressions::{Regression, Linear};
 // y = Ae^(bx)
 // A = Coefficient
 // b = Exponent
-#[allow(dead_code)]
-pub struct Exponential<'a> {
-    x: Dataset<'a>,
-    y: Dataset<'a>,
+pub struct Exponential {
+    x: Dataset,
+    y: Dataset,
     pub coefficient: f64,
     pub exponent: f64
 }
 
-impl<'a> Exponential<'a> {
+impl Exponential {
     // Exponential regression is of the form y = Ae^(bx)
     // solved by converting to the log form ln(y) = bx + lnA
     // and performing a simple linear regression to solve for b & A
-    pub fn new(y: &'a Vec<f64>, x: &'a Vec<f64>) -> Exponential<'a> {
+    pub fn new(y: Vec<f64>, x: Vec<f64>) -> Exponential {
         let y_lns = y.iter()
             .map(|y1| y1.ln())
             .collect();
 
-        let reg = Linear::new(&y_lns, x); 
+        let reg = Linear::new(y_lns, x.clone()); 
         let exponent = reg.gradient;
         let coefficient = reg.intercept.exp();
 
@@ -34,7 +33,7 @@ impl<'a> Exponential<'a> {
     }
 }
 
-impl<'a> Regression for Exponential<'a> {
+impl Regression for Exponential {
     fn x_data(&self) -> &Dataset {
         &self.x
     }

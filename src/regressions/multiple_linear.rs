@@ -2,61 +2,63 @@ use utils::Dataset;
 use regressions::{Regression, Linear};
 
 #[derive(Debug)]
-pub struct MultipleLinear<'a> {
-    y: Dataset<'a>,
-    xs: Vec<Dataset<'a>>,
+pub struct MultipleLinear {
+    y: Dataset,
+    xs: Vec<Dataset>,
     var_count: usize,
     pub coefficients: Vec<f64>,
     pub intercept: f64
 }
 
 #[derive(Debug)]
-struct RankInfo<'a> {
+struct RankInfo {
     index: usize,
     used: bool,
-    regression: Linear<'a>
+    regression: Linear
 }
 
-impl<'a> MultipleLinear<'a> {
-    pub fn new(y: &'a Vec<f64>, xs: &'a Vec<&'a Vec<f64>>) -> MultipleLinear<'a> {
-        let residuals: Vec<f64> = Vec::new();
+impl MultipleLinear {
+    pub fn new(y: Vec<f64>, xs: Vec<Vec<f64>>) -> MultipleLinear {
         let mut variables: Vec<RankInfo> = (0..xs.len())
             .map(|i| {
+                let mut reg = Linear::new(y.clone(), xs[i].clone());
                 RankInfo {
                     index: i,
                     used: false,
-                    regression: Linear::new(y, &xs[i])
+                    regression: reg 
                 }
             })
             .collect();
         let mut intercept = 0.0;
         let mut coefficients: Vec<f64> = vec![0.0; xs.len()];
 
-        while variables.iter().filter(|x| !x.used).collect::<Vec<&RankInfo>>().len() > 0 {
+        while variables.iter().filter(|x| !x.used).collect::<Vec<_>>().len() > 0 {
             let minimising_variable_index = {
+                println!("{:#?}", variables);
                 let mut unused_variables: Vec<&RankInfo> = variables.iter()
                     .filter(|x| !x.used)
                     .collect();
                 unused_variables.sort_by(|var1, var2| {
-                    var1.regression.mean_square_error().partial_cmp(&var2.regression.mean_square_error()).unwrap()
+                    var1.regression.mean_square_error()
+                        .partial_cmp(&var2.regression.mean_square_error())
+                        .unwrap()
                 });
-                println!("{:?}", unused_variables.iter().map(|x| x.regression.mean_square_error()).collect::<Vec<f64>>());
-                let mut minimising_variable = unused_variables[0];
-                intercept = intercept + minimising_variable.regression.intercept;
-                coefficients[minimising_variable.index] = minimising_variable.regression.gradient;
-                coefficients[minimising_variable.index] = minimising_variable.regression.gradient;
-                minimising_variable.index
+                unused_variables[0].index
             };
+            intercept = intercept + variables[minimising_variable_index].regression.intercept;
+            coefficients[minimising_variable_index] = variables[minimising_variable_index].regression.gradient;
+            coefficients[minimising_variable_index] = variables[minimising_variable_index].regression.gradient;
             variables[minimising_variable_index].used = true;
             let residuals = variables[minimising_variable_index].regression.residuals();
-            for i in 0..variables.len() - 1 {
-                variables[i].regression = Linear::new(&residuals, &xs[i])
+            println!("{:?}", residuals);
+            for i in 0..variables.len() {
+                variables[i].regression = Linear::new(residuals.clone(), xs[i].clone());
             }
         }
 
         MultipleLinear {
             y: Dataset::new(y),
-            xs: xs.iter().map(|x| Dataset::new(x)).collect(),
+            xs: xs.iter().map(|x| Dataset::new(x.to_owned())).collect(),
             var_count: xs.len(),
             coefficients,
             intercept
