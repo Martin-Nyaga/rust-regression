@@ -34,7 +34,6 @@ impl MultipleLinear {
 
         while variables.iter().filter(|x| !x.used).collect::<Vec<_>>().len() > 0 {
             let minimising_variable_index = {
-                println!("{:#?}", variables);
                 let mut unused_variables: Vec<&RankInfo> = variables.iter()
                     .filter(|x| !x.used)
                     .collect();
@@ -50,7 +49,6 @@ impl MultipleLinear {
             coefficients[minimising_variable_index] = variables[minimising_variable_index].regression.gradient;
             variables[minimising_variable_index].used = true;
             let residuals = variables[minimising_variable_index].regression.residuals();
-            println!("{:?}", residuals);
             for i in 0..variables.len() {
                 variables[i].regression = Linear::new(residuals.clone(), xs[i].clone());
             }
@@ -87,7 +85,7 @@ impl MultipleLinear {
     }
 
     pub fn equation_string(&self) -> String {
-        format!("{} {:?}",self.intercept, self.coefficients)
+        format!("{} {:?}", self.intercept, self.coefficients)
     }
 }
 
