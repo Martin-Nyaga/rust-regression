@@ -21,7 +21,7 @@ impl MultipleLinear {
     pub fn new(y: Vec<f64>, xs: Vec<Vec<f64>>) -> MultipleLinear {
         let mut variables: Vec<RankInfo> = (0..xs.len())
             .map(|i| {
-                let mut reg = Linear::new(y.clone(), xs[i].clone());
+                let reg = Linear::new(y.clone(), xs[i].clone());
                 RankInfo {
                     index: i,
                     used: false,
@@ -94,7 +94,6 @@ mod multiple_linear_test {
     use super::*;
 
     #[test]
-    fn it_generates_a_correct_exponential_regression_for_simple_data() {
-        // TODO: Test multiple linear regression
+    fn it_generates_a_correct_multiple_linear_regression() {
     }
 }

@@ -16,18 +16,13 @@ fn main() {
 type Record = HashMap<String, String>;
 
 fn run() -> Result<(), Box<Error>> {
-    // let (xs, ys) = parse_csv("./sample_datasets/countries.csv"); 
-    
-    let xs: Vec<f64> = (1u32..30u32).map(|x| x as f64).collect();
-    let x2s: Vec<f64> = xs.iter().map(|x| x*x).collect();
-    let x3s: Vec<f64> = xs.iter().map(|x| x*x*x).collect();
-    let ys: Vec<f64> = xs.iter()
-        .map(|x| 3.0 * x.powi(2) + 5.0 * x.powi(3) - 5.0 * x)
-        .collect(); 
-
-    let x_arr = vec![x3s.clone(), x2s.clone(), xs.clone()];
-    let reg = regression::MultipleLinear::new(ys.clone(), x_arr);
-    println!("{:?}", reg);
+    let (xs, ys) = parse_csv(
+        "./sample_datasets/polynomial.csv",
+        "Temp",
+        "Yield"
+    ); 
+    let reg = regression::Polynomial::new(ys.clone(), xs.clone(), 2);
+    println!("{:#?}", reg);
 
     let mut fg = Figure::new();
     fg.axes2d()
@@ -35,14 +30,14 @@ fn run() -> Result<(), Box<Error>> {
             &xs,
             &ys,
             &[
-                Caption("Unknown Cubic Expression"),
+                Caption("data"),
                 PointSymbol('x'),
             ])
-        .lines(
+        .points(
             &xs,
             &reg.predictions(),
             &[
-                Caption("Least squares estimate"),
+                Caption("Regression"),
                 Color("green"),
                 PointSymbol('*')
             ]);
@@ -51,7 +46,7 @@ fn run() -> Result<(), Box<Error>> {
     Ok(())
 }
 
-fn parse_csv(filepath: &str) -> (Vec<f64>, Vec<f64>) {
+fn parse_csv(filepath: &str, x_header: &str, y_header: &str) -> (Vec<f64>, Vec<f64>) {
     let mut reader = csv::Reader::from_path(filepath).expect("Failed to open file");
 
     let mut xs = Vec::new();
@@ -59,23 +54,17 @@ fn parse_csv(filepath: &str) -> (Vec<f64>, Vec<f64>) {
 
     for record in reader.deserialize() {
         let record: Record = record.expect("Failed to read record");
-
-        let x = match record.get("Infant mortality rate(deaths/1000 live births)").unwrap().parse::<f64>() {
+        let x = match record.get(x_header).unwrap().parse::<f64>() {
             Ok(num) => num,
             Err(_) => continue
         };
-        let y = match record.get("Life expectancy at birth(years)").unwrap().parse::<f64>() {
+        let y = match record.get(y_header).unwrap().parse::<f64>() {
             Ok(num) => num,
             Err(_) => continue
         };
-
         xs.push(x);
         ys.push(y);
     }
 
     (xs, ys)
-}
-
-fn gnuplot_format_string(s: String) -> String {
-    s.replace("(", "{").replace(")","}") 
 }

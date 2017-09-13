@@ -9,6 +9,9 @@ pub use self::exponential::*;
 pub mod power;
 pub use self::power::*;
 
+pub mod polynomial;
+pub use self::polynomial::*;
+
 pub mod multiple_linear;
 pub use self::multiple_linear::*;
 
